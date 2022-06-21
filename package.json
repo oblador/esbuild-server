@@ -1,17 +1,23 @@
 {
   "name": "esbuild-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Joel Arvidsson",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "esbuild src/livereload.js --outdir=dist --target=es6 --minify --log-level=warning && tsc",
-    "format": "prettier '{,src/,example/**/}*.{md,js,ts,json}' --write"
+    "format": "prettier '{,src/,example/**/}*.{md,js,ts,json,html}' --write",
+    "prepare": "npm run build"
   },
   "engines": {
     "node": ">=14"
   },
+  "keywords": [
+    "esbuild",
+    "dev-server",
+    "development"
+  ],
   "files": [
     "browser/*",
     "dist/*"
@@ -25,5 +31,8 @@
   },
   "peerDependencies": {
     "esbuild": ">=0.14.0"
+  },
+  "volta": {
+    "node": "16.14.2"
   }
 }
