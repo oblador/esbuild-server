@@ -191,7 +191,9 @@ export function createServer(
   }
 
   const server = http.createServer(async (req, res) => {
-    switch (req.url) {
+    const url = new URL(`${serverUrl}${req.url}`);
+
+    switch (url.pathname) {
       case '/esbuild-livereload': {
         return buildListeners.setupConnection(req, res);
       }
@@ -235,7 +237,7 @@ export function createServer(
     // Attempt to serve file from build or static directory
     for (const dir of staticDirs) {
       const staticFilePath = path.normalize(
-        path.join(dir, req.url === '/' ? 'index.html' : req.url!)
+        path.join(dir, url.pathname === '/' ? 'index.html' : url.pathname)
       );
       if (staticFilePath.startsWith(dir)) {
         try {
@@ -248,7 +250,7 @@ export function createServer(
       }
     }
 
-    if (historyApiFallback && staticDir && path.extname(req.url!) === '') {
+    if (historyApiFallback && staticDir && path.extname(url.pathname) === '') {
       try {
         return await sendFile(res, path.join(staticDir, 'index.html'));
       } catch (err: any) {
