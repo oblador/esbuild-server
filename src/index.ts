@@ -1,7 +1,11 @@
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import http, { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http';
+import http, {
+  IncomingMessage,
+  OutgoingHttpHeaders,
+  ServerResponse,
+} from 'http';
 import https from 'https';
 import { URL } from 'url';
 import { build, BuildOptions, BuildResult, Plugin } from 'esbuild';
