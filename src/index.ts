@@ -1,7 +1,7 @@
 import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import http, { IncomingMessage, OutgoingMessage, ServerResponse } from 'http';
+import http, { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http';
 import https from 'https';
 import { URL } from 'url';
 import { build, BuildOptions, BuildResult, Plugin } from 'esbuild';
@@ -172,11 +172,14 @@ export function createServer(
         return sendHtml(res, html);
       }
 
-      res.writeHead(200, {
-        'Content-Type': contentType,
+      const headers: OutgoingHttpHeaders = {
         'Content-Length': stat.size,
         'Cache-Control': 'no-store, must-revalidate',
-      });
+      };
+      if (contentType) {
+        headers['Content-Type'] = contentType;
+      }
+      res.writeHead(200, headers);
 
       // @ts-ignore – for some reason the types doesn't include this one
       const readStream = file.createReadStream({ autoClose: true });
