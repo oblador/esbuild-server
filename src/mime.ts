@@ -122,6 +122,8 @@ export function getMimeType(filePath: string) {
       return 'image/tiff';
     case 'webp':
       return 'image/webp';
+    case 'ico':
+      return 'image/vnd.microsoft.icon';
     case 'appcache':
     case 'manifest':
       return 'text/cache-manifest';
