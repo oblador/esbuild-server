@@ -18,11 +18,12 @@ const server = createServer(
 );
 
 const buildStart = Date.now();
-server.start().then((buildResult) => {
-  if (buildResult.errors.length === 0) {
+server
+  .start()
+  .then(() => {
     console.log(`Build completed in ${Date.now() - buildStart}ms`);
-  } else {
+  })
+  .catch(() => {
     console.error('Build failed');
-  }
-});
+  });
 console.log(`Development server running at ${server.url}`);

@@ -8,7 +8,7 @@ import http, {
 } from 'http';
 import https from 'https';
 import { URL } from 'url';
-import { build, BuildOptions, BuildResult, Plugin } from 'esbuild';
+import { context, BuildOptions, Plugin, BuildContext } from 'esbuild';
 import { getMimeType } from './mime';
 import { openUrl } from './openUrl';
 
@@ -271,33 +271,28 @@ export function createServer(
   });
 
   let stopped = false;
-  let buildResult: BuildResult;
-  const start = () => {
+  let ctx: BuildContext;
+  const start = async () => {
     server.listen(port);
-    return build({
-      watch: true,
+    ctx = await context({
       outdir:
         !buildOptions.outdir && !buildOptions.outfile ? buildDir : undefined,
       ...buildOptions,
       plugins: (buildOptions.plugins ?? []).concat(buildStatusPlugin),
-    }).then((result) => {
-      buildResult = result;
-      if (stopped) {
-        if (result.stop) {
-          result.stop();
-        }
-      } else if (result.errors.length === 0 && open) {
-        openUrl(`${serverUrl}${typeof open === 'string' ? open : '/'}`);
-      }
-      return result;
     });
+    if (!stopped) {
+      await ctx.watch();
+    }
+    if (open) {
+      openUrl(`${serverUrl}${typeof open === 'string' ? open : '/'}`);
+    }
   };
 
   const stop = () => {
     stopped = true;
     server.close();
-    if (buildResult && buildResult.stop) {
-      buildResult.stop();
+    if (ctx) {
+      ctx.cancel();
     }
   };
 
