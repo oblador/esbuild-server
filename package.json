@@ -10,6 +10,11 @@
     "format": "prettier '{,src/,example/**/}*.{md,js,ts,json,html}' --write",
     "prepare": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oblador/esbuild-server.git"
+  },
+  "homepage": "https://github.com/oblador/esbuild-server#readme",
   "engines": {
     "node": ">=14"
   },
