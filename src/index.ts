@@ -236,7 +236,7 @@ export function createServer(
       ).on('error', (err) => {
         const msg = `Error connecting to the proxy via ${rewrite}`;
         console.error(msg, err);
-        res.writeHead(500, { 'Content-Type': 'text/plain' }).end(msg);
+        res.writeHead(502, { 'Content-Type': 'text/plain' }).end(msg);
       });
     }
 
