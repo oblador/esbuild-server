@@ -233,7 +233,11 @@ export function createServer(
           }
         ),
         { end: true }
-      );
+      ).on('error', (err) => {
+        const msg = `Error connecting to the proxy via ${rewrite}`;
+        console.error(msg, err);
+        res.writeHead(500).write(msg);
+      });
     }
 
     // Stall request while rebuilding to not serve stale files
