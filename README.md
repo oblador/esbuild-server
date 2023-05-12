@@ -48,7 +48,7 @@ Options passed to [esbuild Build API](https://esbuild.github.io/api/#build-api).
 #### `serverOptions`
 
 | Option                   | Description                                                                                                                                 | Default |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------| ------- |
 | **`static`**             | Path to your static assets folder, should contain an `index.html` file.                                                                     | _None_  |
 | **`port`**               | Port number to listen for requests on.                                                                                                      | `8080`  |
 | **`historyApiFallback`** | For Single Page Apps using the HTML5 History API, the index.html page is served instead of 404 responses.                                   | `false` |
@@ -56,6 +56,8 @@ Options passed to [esbuild Build API](https://esbuild.github.io/api/#build-api).
 | **`open`**               | Open the browser after server had been started. Set to a string to open a particular path.                                                  | `false` |
 | **`proxy`**              | Proxy certain paths to a separate API backend when you want to serve API requests on the same domain. Pass a function for dynamic rewrites. | `{}`    |
 | **`onProxyRewrite`**     | Callback function when a proxy rewrite happens, useful for logging or altering the response.                                                | _None_  |
+| **`http`**               | http options.                                                                                                                               | _None_  |
+| **`https`**              | https options.                                                                                                                              | _None_  |
 
 ## Proxying
 
@@ -94,6 +96,17 @@ A request to `/api/users` will now proxy the request to `http://localhost:3000/u
     proxyRes.headers['x-my-custom-header'] = 'yep';
     return proxyRes;
   };
+}
+```
+
+## Https
+
+```js
+{
+    https: {
+        key: fs.readFileSync('server.key'),
+        cert: fs.readFileSync('server.crt'),
+    }
 }
 ```
 
