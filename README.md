@@ -103,10 +103,10 @@ A request to `/api/users` will now proxy the request to `http://localhost:3000/u
 
 ```js
 {
-    https: {
-        key: fs.readFileSync('server.key'),
-        cert: fs.readFileSync('server.crt'),
-    }
+  https: {
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.crt'),
+  }
 }
 ```
 
