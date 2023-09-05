@@ -227,25 +227,27 @@ export function createServer(
       }
       const request =
         target.protocol === 'http:' ? http.request : https.request;
-      return req.pipe(
-        request(
-          rewrite,
-          {
-            method: req.method,
-            headers: { ...req.headers, host: target.host! },
-          },
-          (proxyRes) => {
-            const finalRes = onProxyRewrite(proxyRes, req.url!, rewrite);
-            res.writeHead(finalRes.statusCode!, finalRes.headers);
-            finalRes.pipe(res, { end: true });
-          }
-        ),
-        { end: true }
-      ).on('error', (err: Error) => {
-        const msg = `Error connecting to the proxy via ${rewrite}`;
-        console.error(msg, err);
-        res.writeHead(502, { 'Content-Type': 'text/plain' }).end(msg);
-      });
+      return req
+        .pipe(
+          request(
+            rewrite,
+            {
+              method: req.method,
+              headers: { ...req.headers, host: target.host! },
+            },
+            (proxyRes) => {
+              const finalRes = onProxyRewrite(proxyRes, req.url!, rewrite);
+              res.writeHead(finalRes.statusCode!, finalRes.headers);
+              finalRes.pipe(res, { end: true });
+            }
+          ),
+          { end: true }
+        )
+        .on('error', (err: Error) => {
+          const msg = `Error connecting to the proxy via ${rewrite}`;
+          console.error(msg, err);
+          res.writeHead(502, { 'Content-Type': 'text/plain' }).end(msg);
+        });
     }
 
     // Stall request while rebuilding to not serve stale files
@@ -282,7 +284,9 @@ export function createServer(
     sendHtml(res, '<h1>Not found</h1>', 404);
   };
 
-  const server = serverOptions.https ? https.createServer(serverOptions.https, handler) : http.createServer(serverOptions.http ?? {}, handler);
+  const server = serverOptions.https
+    ? https.createServer(serverOptions.https, handler)
+    : http.createServer(serverOptions.http ?? {}, handler);
 
   let stopped = false;
   let ctx: BuildContext;

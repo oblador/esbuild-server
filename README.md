@@ -48,7 +48,7 @@ Options passed to [esbuild Build API](https://esbuild.github.io/api/#build-api).
 #### `serverOptions`
 
 | Option                   | Description                                                                                                                                 | Default |
-|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------| ------- |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | **`static`**             | Path to your static assets folder, should contain an `index.html` file.                                                                     | _None_  |
 | **`port`**               | Port number to listen for requests on.                                                                                                      | `8080`  |
 | **`historyApiFallback`** | For Single Page Apps using the HTML5 History API, the index.html page is served instead of 404 responses.                                   | `false` |
