@@ -41,6 +41,7 @@ export type ServerOptions = {
     localUrl: string,
     proxyUrl: string
   ) => IncomingMessage;
+  onSendHtml?: (html: string, status: number) => string;
   http?: HttpServerOptions;
   https?: HttpsServerOptions;
 };
@@ -103,6 +104,7 @@ export function createServer(
     open = false,
     proxy,
     onProxyRewrite = (proxyRes) => proxyRes,
+    onSendHtml,
   } = serverOptions;
   const serverUrl = `http://localhost:${port}`;
 
@@ -146,19 +148,22 @@ export function createServer(
   };
 
   function sendHtml(res: ServerResponse, html: string, status = 200) {
-    const body = injectLiveReload
+    html = injectLiveReload
       ? injectScript(
           html,
           fs.readFileSync(LIVE_RELOAD_SCRIPT_PATH, { encoding: 'utf8' })
         )
       : html;
-
+    html =
+      onSendHtml && typeof onSendHtml === 'function'
+        ? onSendHtml(html, status)
+        : html;
     res.writeHead(status, {
       'Content-Type': 'text/html; charset=utf-8',
-      'Content-Length': Buffer.byteLength(body),
+      'Content-Length': Buffer.byteLength(html),
       'Cache-Control': 'no-store, must-revalidate',
     });
-    return res.end(body);
+    return res.end(html);
   }
 
   async function sendFile(res: ServerResponse, filePath: string) {

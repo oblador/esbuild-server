@@ -56,6 +56,7 @@ Options passed to [esbuild Build API](https://esbuild.github.io/api/#build-api).
 | **`open`**               | Open the browser after server had been started. Set to a string to open a particular path.                                                  | `false` |
 | **`proxy`**              | Proxy certain paths to a separate API backend when you want to serve API requests on the same domain. Pass a function for dynamic rewrites. | `{}`    |
 | **`onProxyRewrite`**     | Callback function when a proxy rewrite happens, useful for logging or altering the response.                                                | _None_  |
+| **`onSendHtml`**         | Callback function when a html response will be sent, useful for modifying the response content.                                             | _None_  |
 | **`http`**               | http options.                                                                                                                               | _None_  |
 | **`https`**              | https options.                                                                                                                              | _None_  |
 
@@ -95,6 +96,17 @@ A request to `/api/users` will now proxy the request to `http://localhost:3000/u
     console.log(`Proxying ${localUrl} to ${proxyUrl}`);
     proxyRes.headers['x-my-custom-header'] = 'yep';
     return proxyRes;
+  };
+}
+```
+
+## Modifying HTML content
+
+```js
+{
+  onSendHtml: (html, status) => {
+    console.log(`Modifying HTML response with status ${status}`);
+    return html.replace('Hello World', 'Lorem Ipsum');
   };
 }
 ```
