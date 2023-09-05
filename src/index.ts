@@ -41,6 +41,7 @@ export type ServerOptions = {
     localUrl: string,
     proxyUrl: string
   ) => IncomingMessage;
+  onSendHtml?: (html: string, status: number) => string;
   http?: HttpServerOptions;
   https?: HttpsServerOptions;
 };
@@ -103,6 +104,7 @@ export function createServer(
     open = false,
     proxy,
     onProxyRewrite = (proxyRes) => proxyRes,
+    onSendHtml,
   } = serverOptions;
   const serverUrl = `http://localhost:${port}`;
 
@@ -146,19 +148,22 @@ export function createServer(
   };
 
   function sendHtml(res: ServerResponse, html: string, status = 200) {
-    const body = injectLiveReload
+    html = injectLiveReload
       ? injectScript(
           html,
           fs.readFileSync(LIVE_RELOAD_SCRIPT_PATH, { encoding: 'utf8' })
         )
       : html;
-
+    html =
+      onSendHtml && typeof onSendHtml === 'function'
+        ? onSendHtml(html, status)
+        : html;
     res.writeHead(status, {
       'Content-Type': 'text/html; charset=utf-8',
-      'Content-Length': Buffer.byteLength(body),
+      'Content-Length': Buffer.byteLength(html),
       'Cache-Control': 'no-store, must-revalidate',
     });
-    return res.end(body);
+    return res.end(html);
   }
 
   async function sendFile(res: ServerResponse, filePath: string) {
@@ -222,25 +227,27 @@ export function createServer(
       }
       const request =
         target.protocol === 'http:' ? http.request : https.request;
-      return req.pipe(
-        request(
-          rewrite,
-          {
-            method: req.method,
-            headers: { ...req.headers, host: target.host! },
-          },
-          (proxyRes) => {
-            const finalRes = onProxyRewrite(proxyRes, req.url!, rewrite);
-            res.writeHead(finalRes.statusCode!, finalRes.headers);
-            finalRes.pipe(res, { end: true });
-          }
-        ),
-        { end: true }
-      ).on('error', (err: Error) => {
-        const msg = `Error connecting to the proxy via ${rewrite}`;
-        console.error(msg, err);
-        res.writeHead(502, { 'Content-Type': 'text/plain' }).end(msg);
-      });
+      return req
+        .pipe(
+          request(
+            rewrite,
+            {
+              method: req.method,
+              headers: { ...req.headers, host: target.host! },
+            },
+            (proxyRes) => {
+              const finalRes = onProxyRewrite(proxyRes, req.url!, rewrite);
+              res.writeHead(finalRes.statusCode!, finalRes.headers);
+              finalRes.pipe(res, { end: true });
+            }
+          ),
+          { end: true }
+        )
+        .on('error', (err: Error) => {
+          const msg = `Error connecting to the proxy via ${rewrite}`;
+          console.error(msg, err);
+          res.writeHead(502, { 'Content-Type': 'text/plain' }).end(msg);
+        });
     }
 
     // Stall request while rebuilding to not serve stale files
@@ -277,7 +284,9 @@ export function createServer(
     sendHtml(res, '<h1>Not found</h1>', 404);
   };
 
-  const server = serverOptions.https ? https.createServer(serverOptions.https, handler) : http.createServer(serverOptions.http ?? {}, handler);
+  const server = serverOptions.https
+    ? https.createServer(serverOptions.https, handler)
+    : http.createServer(serverOptions.http ?? {}, handler);
 
   let stopped = false;
   let ctx: BuildContext;

@@ -13,6 +13,10 @@ const server = createServer(
       console.log(`Proxying ${localUrl} to ${proxyUrl}`);
       return proxyRes;
     },
+    onSendHtml: (html, status) => {
+      console.log(`Modifying HTML response with status ${status}`);
+      return html.replace('Hello World', 'Lorem Ipsum');
+    },
     open: true,
   }
 );
